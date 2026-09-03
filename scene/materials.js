@@ -28,5 +28,33 @@ export function createMaterials() {
       color: 0xfaf9f4,
       roughness: 0.4,
     }),
+    skinMaterial: new THREE.MeshStandardMaterial({
+      color: 0xd69a72,
+      roughness: 0.7,
+    }),
+    shirtMaterial: new THREE.MeshStandardMaterial({
+      color: 0x3d6fa3,
+      roughness: 0.75,
+    }),
+    redShirtMaterial: new THREE.MeshStandardMaterial({
+      color: 0xb94a4a,
+      roughness: 0.75,
+    }),
+    greenShirtMaterial: new THREE.MeshStandardMaterial({
+      color: 0x43835c,
+      roughness: 0.75,
+    }),
+    examinerJacketMaterial: new THREE.MeshStandardMaterial({
+      color: 0x252832,
+      roughness: 0.7,
+    }),
+    trousersMaterial: new THREE.MeshStandardMaterial({
+      color: 0x26364a,
+      roughness: 0.8,
+    }),
+    hairMaterial: new THREE.MeshStandardMaterial({
+      color: 0x2b1c18,
+      roughness: 0.9,
+    })
   };
 }

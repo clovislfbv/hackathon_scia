@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import { addLighting } from "./scene/lighting.js";
 import { createMaterials } from "./scene/materials.js";
 import { createRoom } from "./scene/room.js";
@@ -7,7 +8,7 @@ import {
   createChair,
   createDesk,
   createDoor,
-  createWindow,
+  createSeatedStudent
 } from "./objects/index.js";
 import {
   createCollisionSystem,
@@ -36,17 +37,10 @@ document.body.appendChild(renderer.domElement);
 
 const materials = createMaterials();
 addLighting(scene);
+const upperBodies = [];
+const lookTarget = new THREE.Vector3();
 
 const collisionSystem = createCollisionSystem();
-createRoom(
-  scene,
-  [14, 5, 14],
-  materials.floor,
-  materials.wall,
-  materials.floor,
-);
-
-// Create the walls, the ceiling and the floor
 createRoom(
   scene,
   [14, 5, 14],
@@ -80,6 +74,18 @@ for (const z of [-1.2, 2.1]) {
   }
 }
 
+// Three students seated in the first row, facing the board.
+createSeatedStudent(scene, [-3.08, 0, -0.5], materials, upperBodies, materials.shirtMaterial, false, { name: "Alex", role: "L'intello" });
+createSeatedStudent(scene, [1.92, 0, -0.5], materials, upperBodies, materials.redShirtMaterial, false, { name: "Lucas", role: "Le perturbateur" });
+createSeatedStudent(scene, [3.08, 0, -0.5], materials, upperBodies, materials.greenShirtMaterial, false, { name: "Sam", role: "Le perdu" });
+
+// The examiner observes the lesson from the last row.
+createSeatedStudent(scene, [3.08, 0, 2.8], materials, upperBodies, materials.examinerJacketMaterial, true, {
+  name: "M. Vautier",
+  role: "Examinateur",
+  labelHeight: 2.35,
+});
+
 // White board on the front wall, with a simple frame and tray.
 createBoard(
   scene,
@@ -88,11 +94,17 @@ createBoard(
   materials,
   collisionSystem.addCollisionBox,
 );
-createWindow(scene, [4.5, 3.2, 6.9], materials);
-
 const controls = createControls(camera, renderer);
 const movement = createMovement(camera, controls, collisionSystem.collidesAt);
 const doorInteraction = createDoorInteraction(camera, controls, doorHinge);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.className = "character-labels";
+labelRenderer.domElement.style.position = "fixed";
+labelRenderer.domElement.style.inset = "0";
+labelRenderer.domElement.style.pointerEvents = "none";
+document.body.appendChild(labelRenderer.domElement);
 
 let previousTime = performance.now();
 
@@ -100,9 +112,17 @@ function resize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 window.addEventListener("resize", resize);
+
+function updateCharacterGaze() {
+  for (const upperBody of upperBodies) {
+    upperBody.getWorldPosition(lookTarget);
+    upperBody.lookAt(camera.position.x, lookTarget.y, camera.position.z);
+  }
+}
 
 function animate() {
   const currentTime = performance.now();
@@ -110,7 +130,9 @@ function animate() {
   previousTime = currentTime;
   movement.update(delta);
   doorInteraction.update(delta);
+  updateCharacterGaze();
   renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
 }
 
 renderer.setAnimationLoop(animate);
