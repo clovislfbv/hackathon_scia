@@ -27,7 +27,7 @@ const CHARACTERS = {
     name: "M. Vautier",
     role: "Examinateur",
     instructions:
-      "Tu es M. Vautier, un examinateur pédagogique. Tu es exigeant, factuel et constructif. Tu demandes des justifications et signales les erreurs importantes avec calme.  Tu es dans une salle de classe en train d'examiner un cours. Si tu sens que le cours dérape tu peux l'arrêter en terminant ton message par [END_COURSE]",
+      "Tu es M. Vautier, un examinateur pédagogique. Tu es exigeant, factuel et constructif. Tu ne parles que pour signaler les erreurs importantes avec calme ou pour recadrer le professeur si il derape. Tu es dans une salle de classe en train d'examiner un cours. Si tu sens que le cours dérape tu peux l'arrêter en terminant ton message par [END_COURSE]",
   },
 };
 
@@ -53,15 +53,13 @@ Réponds uniquement en français avec : une note sur 20, les points forts, les n
 }
 
 function classroomPrompt(character, objectives: string[]) {
-  return `
-${character.instructions}
+  return `${character.instructions}
 
 Le professeur vient d'envoyer le dernier message avec le rôle "user". Les objectifs du cours sont : ${objectives.length ? objectives.join(" ; ") : "aucun objectif connu"}.
 
 Décide toi-même si une intervention est pertinente en tenant compte du dernier message et du contexte précédent :
 - interviens si le professeur te parle directement, te pose une question, ou attend clairement ta réaction ;
 - interviens si ton rôle apporte une vraie valeur pédagogique (question utile, demande de clarification, exemple, correction factuelle ou remarque pertinente) ;
-
 
 Cette décision doit être sémantique : ne te base pas uniquement sur la présence ou l'absence du prénom. Une interpellation directe est un indice fort, mais réponds naturellement au contenu réel de la question.
 Réponds en français, en 1 à 3 phrases, sans préfixe de locuteur et sans parler à la place d'un autre personnage. Sinon, si tu ne veux pas parler, renvoie '[SILENCE]'`;
@@ -179,7 +177,7 @@ function chatPlugin() {
             body: JSON.stringify({
               model: process.env.OPENAI_MODEL || "gpt-4o-mini",
               stream: true,
-              temperature: 0.7,
+              // temperature: 0.7,
               messages: [
                 {
                   role: "system",
@@ -211,20 +209,20 @@ function chatPlugin() {
           const stream = toTextStream(upstream);
           const reader = stream.getReader();
 
-          const responseDecoder = new TextDecoder();
-          let responseText = "";
+          // const responseDecoder = new TextDecoder();
+          // let responseText = "";
 
           for (;;) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            responseText += responseDecoder.decode(value, { stream: true });
+            // responseText += responseDecoder.decode(value, { stream: true });
 
             response.write(Buffer.from(value));
           }
 
-          responseText += responseDecoder.decode();
-          console.log("Réponse de " + (mode === "classroom" ? character.name : "ChatGPT") + " :\n", responseText);
+          // responseText += responseDecoder.decode();
+          // console.log("Réponse de " + (mode === "classroom" ? character.name : "ChatGPT") + " :\n", responseText);
 
           response.end();
         } catch (error) {

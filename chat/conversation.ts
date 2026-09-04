@@ -43,6 +43,7 @@ export function createConversation({
   let busy = false;
   let briefingLocked = false;
   let evaluationLocked = false;
+  let evaluationPending = false;
 
   function extractMetadata(answer: string, marker: string) {
     const expression = new RegExp(`\\s*\\[\\[${marker}:(\\[[\\s\\S]*?\\])\\]\\]\\s*$`);
@@ -271,7 +272,10 @@ export function createConversation({
 
   async function requestEvaluation() {
     const transcript = histories.classroom;
-    if (busy) return;
+    if (busy) {
+      evaluationPending = true;
+      return;
+    }
     evaluationLocked = true;
     current = {
       mode: "evaluation",
@@ -435,11 +439,13 @@ export function createConversation({
           role: message.role,
           content: `[CONTEXTE DE LA DISCUSSION PRIVÉE AVEC ${character.name.toUpperCase()}] ${message.content}`,
         }));
-        const classroomHistory = next
-          .filter((message) => message.role === "user" || message.content.startsWith(`[${character.name.toUpperCase()}]:`))
-          .map((message) => message.role === "assistant"
-            ? { role: "assistant", content: message.content.replace(`[${character.name.toUpperCase()}]: `, "") }
-            : message);
+        const classroomHistory = next.map((message) => {
+          if (message.role === "user") return message;
+          return {
+            role: "assistant",
+            content: message.content,
+          };
+        });
         const ownHistory = [...privateHistory, ...classroomHistory];
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -480,6 +486,11 @@ export function createConversation({
       status.textContent = error instanceof Error ? error.message : "Erreur de discussion.";
     } finally {
       busy = false;
+      if (evaluationPending) {
+        evaluationPending = false;
+        void requestEvaluation();
+        return;
+      }
       submitButton.disabled = false;
       input.disabled = false;
       input.focus();
