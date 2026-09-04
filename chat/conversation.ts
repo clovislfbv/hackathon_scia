@@ -1,6 +1,20 @@
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
+type SpeechRecognitionResultLike = { transcript: string };
+type SpeechRecognitionEventLike = { resultIndex: number; results: ArrayLike<ArrayLike<SpeechRecognitionResultLike>> };
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+};
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
 const CHARACTERS = {
   alex: { name: "Alex", role: "L'intello", portrait: "/portraits/alex.svg" },
   lucas: { name: "Lucas", role: "Le perturbateur", portrait: "/portraits/lucas.svg" },
@@ -38,12 +52,45 @@ export function createConversation({
   const status = document.querySelector<HTMLElement>("#chat-status");
   const submitButton = form.querySelector<HTMLButtonElement>("button[type=submit]");
   const restartButton = document.querySelector<HTMLButtonElement>("#restart-game-button");
+  const microphoneButton = document.querySelector<HTMLButtonElement>("#speech-input-button");
   const histories = { alex: [], lucas: [], sam: [], vautier: [], briefing: [], classroom: [], evaluation: [] };
   let current = null;
   let busy = false;
   let briefingLocked = false;
   let evaluationLocked = false;
   let evaluationPending = false;
+
+  const SpeechRecognition = (window as typeof window & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }).SpeechRecognition ?? (window as typeof window & { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition;
+  const speechRecognition = SpeechRecognition ? new SpeechRecognition() : null;
+  let speechBaseText = "";
+  let speechListening = false;
+
+  if (!speechRecognition) microphoneButton.hidden = true;
+  else {
+    speechRecognition.lang = "fr-FR";
+    speechRecognition.continuous = false;
+    speechRecognition.interimResults = true;
+    speechRecognition.onresult = (event) => {
+      let transcript = "";
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        transcript += event.results[index][0].transcript;
+      }
+      input.value = `${speechBaseText}${speechBaseText && transcript ? " " : ""}${transcript}`;
+    };
+    speechRecognition.onerror = (event) => {
+      if (event.error !== "aborted") status.textContent = "La reconnaissance vocale n'a pas pu transcrire votre voix.";
+    };
+    speechRecognition.onend = () => {
+      speechListening = false;
+      microphoneButton.classList.remove("is-listening");
+      microphoneButton.setAttribute("aria-label", "Dicter un message");
+      microphoneButton.title = "Dicter un message";
+      if (status.textContent === "Écoute en cours…") status.textContent = "";
+    };
+  }
 
   function extractMetadata(answer: string, marker: string) {
     const expression = new RegExp(`\\s*\\[\\[${marker}:(\\[[\\s\\S]*?\\])\\]\\]\\s*$`);
@@ -66,6 +113,13 @@ export function createConversation({
     submitButton.hidden = !visible;
     input.disabled = !visible;
     submitButton.disabled = !visible;
+    microphoneButton.hidden = !visible || !speechRecognition;
+    microphoneButton.disabled = !visible;
+    if (!visible) stopSpeechRecognition();
+  }
+
+  function stopSpeechRecognition() {
+    if (speechListening) speechRecognition?.stop();
   }
 
   function appendMath(parent: HTMLElement, formula: string, displayMode: boolean, fallback: string) {
@@ -349,6 +403,7 @@ export function createConversation({
     panel.classList.remove("is-open");
     panel.setAttribute("aria-hidden", "true");
     input.value = "";
+    stopSpeechRecognition();
     status.textContent = "";
     current = null;
   }
@@ -359,6 +414,7 @@ export function createConversation({
   }
 
   async function send(text) {
+    stopSpeechRecognition();
     const session = current;
     if (session.mode === "classroom") {
       await sendToClassroom(text);
@@ -371,6 +427,7 @@ export function createConversation({
     busy = true;
     submitButton.disabled = true;
     input.disabled = true;
+    microphoneButton.disabled = true;
     status.textContent = `${session.character.name} réfléchit…`;
     const responseMessage = appendMessage("agent", "", session.character);
     try {
@@ -418,6 +475,7 @@ export function createConversation({
       busy = false;
       submitButton.disabled = false;
       input.disabled = false;
+      microphoneButton.disabled = Boolean(form.hidden);
       input.focus();
     }
   }
@@ -430,6 +488,7 @@ export function createConversation({
     busy = true;
     submitButton.disabled = true;
     input.disabled = true;
+    microphoneButton.disabled = true;
     status.textContent = "Les élèves réfléchissent…";
 
     try {
@@ -493,6 +552,7 @@ export function createConversation({
       }
       submitButton.disabled = false;
       input.disabled = false;
+      microphoneButton.disabled = Boolean(form.hidden);
       input.focus();
     }
   }
@@ -503,6 +563,26 @@ export function createConversation({
     if (!text || !current || busy) return;
     input.value = "";
     send(text);
+  });
+  microphoneButton.addEventListener("click", () => {
+    if (!speechRecognition || busy || input.disabled) return;
+    if (speechListening) {
+      speechRecognition.stop();
+      return;
+    }
+    speechBaseText = input.value.trim();
+    status.textContent = "Écoute en cours…";
+    try {
+      speechListening = true;
+      microphoneButton.classList.add("is-listening");
+      microphoneButton.setAttribute("aria-label", "Arrêter la dictée");
+      microphoneButton.title = "Arrêter la dictée";
+      speechRecognition.start();
+    } catch {
+      speechListening = false;
+      microphoneButton.classList.remove("is-listening");
+      status.textContent = "La reconnaissance vocale est déjà en cours.";
+    }
   });
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {

@@ -192,6 +192,9 @@
       #chat-form { display: flex; gap: 8px; }
       #chat-input { min-width: 0; flex: 1; resize: none; border: 1px solid #ffffff33; border-radius: 10px; background: #0d1522; color: inherit; padding: 10px; font: inherit; }
       #chat-form button { border: 0; border-radius: 10px; background: #e8dfcf; color: #182238; cursor: pointer; font-weight: 700; padding: 0 14px; }
+      #speech-input-button { min-width: 42px; padding: 0 10px; font-size: 18px; }
+      #speech-input-button.is-listening { background: #e87070; color: #fff; animation: microphone-pulse 1s ease-in-out infinite; }
+      @keyframes microphone-pulse { 50% { box-shadow: 0 0 0 5px #e8707066; } }
       #restart-game-button { border: 0; border-radius: 10px; background: #e8dfcf; color: #182238; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 14px; }
       #chat-form button:disabled, #chat-input:disabled { cursor: wait; opacity: 0.65; }
       #chat-status { min-height: 18px; margin: 0; color: #bad7ff; font-size: 12px; }
@@ -204,7 +207,7 @@
         <button id="close-chat" type="button" aria-label="Fermer la discussion">×</button>
       </header>
       <div id="chat-messages" aria-live="polite"></div>
-      <form id="chat-form"><textarea id="chat-input" rows="3" placeholder="Explique ta notion…"></textarea><button type="submit">Envoyer</button></form>
+      <form id="chat-form"><textarea id="chat-input" rows="3" placeholder="Explique ta notion…"></textarea><button id="speech-input-button" type="button" aria-label="Dicter un message" title="Dicter un message">🎤</button><button type="submit">Envoyer</button></form>
       <button id="restart-game-button" type="button" hidden>Relancer une partie</button>
       <p id="chat-status"></p>
     </aside>
