@@ -269,8 +269,8 @@ export function createConversation({
   }
 
   async function requestEvaluation() {
-    const transcript = [...histories.briefing, ...histories.classroom];
-    if (!transcript.length || busy) return;
+    const transcript = histories.classroom;
+    if (busy) return;
     evaluationLocked = true;
     current = {
       mode: "evaluation",
@@ -290,6 +290,17 @@ export function createConversation({
     busy = true;
     const responseMessage = appendMessage("agent", "", current.character);
     try {
+      const teacherMessages = transcript.filter((message) => message.role === "user");
+      if (!teacherMessages.length) {
+        const results = objectives().map(() => false);
+        const answer = "## Évaluation impossible\n\nVous n'avez donné aucune explication à la classe. Aucun objectif ne peut donc être validé.\n\n**Note : 0/20**\n\nRelancez une partie pour présenter les notions aux élèves.";
+        renderMessageContent(responseMessage, answer, true);
+        histories.evaluation = [{ role: "assistant", content: answer }];
+        onEvaluationComplete(results);
+        restartButton.hidden = false;
+        status.textContent = "";
+        return;
+      }
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

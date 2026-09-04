@@ -46,7 +46,9 @@ Pour les messages suivants, réponds à ses questions pour le préparer. Sois pr
 function evaluationPrompt(objectives: string[]) {
   return `Tu es M. Vautier, examinateur pédagogique. Évalue le cours donné par l'utilisateur à partir de la transcription fournie.
 Les objectifs officiels à évaluer, dans cet ordre, sont : ${objectives.map((objective, index) => `${index + 1}. ${objective}`).join("; ")}.
-Vérifie chaque objectif, l'exactitude factuelle, la précision, la clarté, les exemples, les réponses aux élèves et la correction des erreurs.
+La transcription contient uniquement l'étape 2. Évalue exclusivement les messages de rôle "user" : ce sont les seules explications réellement données par le professeur. Les messages "assistant" sont les élèves et ne prouvent jamais qu'une notion a été enseignée. Le briefing n'est pas une preuve d'enseignement.
+Un objectif ne peut être validé (true) que si le professeur l'a explicitement abordé avec une explication factuellement correcte et suffisamment claire dans ses propres messages. Une simple mention, une question, un objectif annoncé, ou une réponse donnée seulement par un élève ne suffit pas. En cas de doute, retourne false.
+Vérifie aussi l'exactitude factuelle, la précision, la clarté, les exemples, les réponses aux élèves et la correction des erreurs.
 Réponds uniquement en français avec : une note sur 20, les points forts, les notions oubliées ou incorrectes, et trois conseils concrets. Sois juste et factuel. Termine impérativement par une ligne au format exact [[OBJECTIVE_RESULTS:[true,false]]], contenant un booléen pour chaque objectif, dans le même ordre. true signifie validé, false signifie non validé.`;
 }
 
