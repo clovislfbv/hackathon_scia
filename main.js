@@ -8,7 +8,8 @@ import {
   createChair,
   createDesk,
   createDoor,
-  createSeatedStudent
+  createSeatedStudent,
+  createWindow
 } from "./objects/index.js";
 import {
   createCharacterInteraction,
@@ -19,6 +20,7 @@ import {
 } from "./player/index.js";
 import { createConversation } from "./chat/conversation.js";
 
+// Setting up the scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101827);
 
@@ -58,6 +60,18 @@ createDesk(scene, [0, 0, -4.1], materials, collisionSystem.addCollisionBox, 3);
 // Create door
 const doorHinge = createDoor(scene, [-7, 1.5, -4], materials);
 
+// White board on the front wall, with a simple frame and tray.
+createBoard(
+  scene,
+  [8, 3],
+  [0, 2.5, -6.9],
+  materials,
+  collisionSystem.addCollisionBox,
+);
+
+// Create window
+createWindow(scene, [4.5, 3.2, 6.9], materials);
+
 // Four student tables, each with two chairs facing the board.
 for (const z of [-1.2, 2.1]) {
   for (const x of [-2.5, 2.5]) {
@@ -81,9 +95,11 @@ for (const z of [-1.2, 2.1]) {
 const alex = createSeatedStudent(scene, [-3.08, 0, -0.5], materials, upperBodies, materials.shirtMaterial, false, { name: "Alex", role: "L'intello" });
 alex.userData.characterId = "alex";
 interactiveCharacters.push(alex);
+
 const lucas = createSeatedStudent(scene, [1.92, 0, -0.5], materials, upperBodies, materials.redShirtMaterial, false, { name: "Lucas", role: "Le perturbateur" });
 lucas.userData.characterId = "lucas";
 interactiveCharacters.push(lucas);
+
 const sam = createSeatedStudent(scene, [3.08, 0, -0.5], materials, upperBodies, materials.greenShirtMaterial, false, { name: "Sam", role: "Le perdu" });
 sam.userData.characterId = "sam";
 interactiveCharacters.push(sam);
@@ -97,14 +113,6 @@ const vautier = createSeatedStudent(scene, [3.08, 0, 2.8], materials, upperBodie
 vautier.userData.characterId = "vautier";
 interactiveCharacters.push(vautier);
 
-// White board on the front wall, with a simple frame and tray.
-createBoard(
-  scene,
-  [8, 3],
-  [0, 2.5, -6.9],
-  materials,
-  collisionSystem.addCollisionBox,
-);
 const controls = createControls(camera, renderer, (event) => !event.defaultPrevented);
 const movement = createMovement(camera, controls, collisionSystem.collidesAt);
 const doorInteraction = createDoorInteraction(camera, controls, doorHinge);
