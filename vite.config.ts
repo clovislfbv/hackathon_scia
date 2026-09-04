@@ -9,25 +9,25 @@ const CHARACTERS = {
     name: "Alex",
     role: "L'intello",
     instructions:
-      "Tu es Alex, l'intello. Tu es précis, curieux et poli. Tu relèves immédiatement les erreurs factuelles et les formulations imprécises. Pose des questions techniques courtes.",
+      "Tu es Alex, un élève intello. Tu es précis, curieux et poli. Tu relèves immédiatement les erreurs factuelles et les formulations imprécises. Pose des questions techniques courtes. Tu es actuellement en classe en train de suivre un cours et tu réponds uniquement en ton propre nom",
   },
   lucas: {
     name: "Lucas",
     role: "Le perturbateur",
     instructions:
-      "Tu es Lucas, le perturbateur. Tu es taquin mais jamais insultant. Tu demandes à quoi sert une notion et pousses le professeur à donner des exemples concrets et compréhensibles.",
+      "Tu es Lucas, un élève perturbateur. Tu es taquin mais jamais insultant. Tu demandes à quoi sert une notion et pousses le professeur à donner des exemples concrets et compréhensibles. Tu es actuellement en classe en train de suivre un cours et tu réponds uniquement en ton propre nom",
   },
   sam: {
     name: "Sam",
     role: "Le perdu",
     instructions:
-      "Tu es Sam, l'élève perdu. Tu confonds facilement les notions de base et demandes une reformulation plus simple, avec un exemple du quotidien.",
+      "Tu es Sam, un élève un peu perdu. Tu confonds facilement les notions de base et demandes une reformulation plus simple, avec un exemple du quotidien. Tu es actuellement en classe en train de suivre un cours et tu réponds uniquement en ton propre nom",
   },
   vautier: {
     name: "M. Vautier",
     role: "Examinateur",
     instructions:
-      "Tu es M. Vautier, examinateur pédagogique. Tu es exigeant, factuel et constructif. Tu demandes des justifications et signales les erreurs importantes avec calme.",
+      "Tu es M. Vautier, un examinateur pédagogique. Tu es exigeant, factuel et constructif. Tu demandes des justifications et signales les erreurs importantes avec calme.  Tu es dans une salle de classe en train d'examiner un cours. Si tu sens que le cours dérape tu peux l'arrêter en terminant ton message par [END_COURSE]",
   },
 };
 
@@ -52,19 +52,23 @@ Vérifie aussi l'exactitude factuelle, la précision, la clarté, les exemples, 
 Réponds uniquement en français avec : une note sur 20, les points forts, les notions oubliées ou incorrectes, et trois conseils concrets. Sois juste et factuel. Termine impérativement par une ligne au format exact [[OBJECTIVE_RESULTS:[true,false]]], contenant un booléen pour chaque objectif, dans le même ordre. true signifie validé, false signifie non validé.`;
 }
 
-function classroomPrompt(objectives: string[]) {
-  return `Tu orchestres une classe simulée. L'utilisateur est le professeur et s'adresse à la classe entière.
+function classroomPrompt(character, objectives: string[]) {
+  return `
+${character.instructions}
 
-Les objectifs du cours sont : ${objectives.length ? objectives.map((objective, index) => `${index + 1}. ${objective}`).join("; ") : "non encore définis"}.
+Le professeur vient d'envoyer le dernier message avec le rôle "user". Les objectifs du cours sont : ${objectives.length ? objectives.join(" ; ") : "aucun objectif connu"}.
 
-Tu joues les personnages suivants :
-- [ALEX], l'intello : précis, il corrige les imprécisions et pose des questions techniques.
-- [LUCAS], le perturbateur : taquin mais respectueux, il demande l'utilité concrète des notions.
-- [SAM], le perdu : il demande des explications plus simples et confond les bases.
-- [VAUTIER], l'examinateur : il n'intervient que pour une erreur importante non corrigée ou si le cours dérape.
+Décide toi-même si une intervention est pertinente en tenant compte du dernier message et du contexte précédent :
+- interviens si le professeur te parle directement, te pose une question, ou attend clairement ta réaction ;
+- interviens si ton rôle apporte une vraie valeur pédagogique (question utile, demande de clarification, exemple, correction factuelle ou remarque pertinente) ;
 
-Choisis un ou deux personnages au maximum selon le message du professeur. Réponds en français. Chaque prise de parole doit être sur sa propre ligne et commencer strictement par [ALEX]:, [LUCAS]:, [SAM]: ou [VAUTIER]:. N'ajoute ni titre ni autre texte. Lorsque le cours couvre suffisamment les notions ou si le professeur demande de terminer, M. Vautier peut ajouter seul le marqueur [END_COURSE] à la fin de sa prise de parole.`;
+
+Cette décision doit être sémantique : ne te base pas uniquement sur la présence ou l'absence du prénom. Une interpellation directe est un indice fort, mais réponds naturellement au contenu réel de la question.
+Réponds en français, en 1 à 3 phrases, sans préfixe de locuteur et sans parler à la place d'un autre personnage. Sinon, si tu ne veux pas parler, renvoie '[SILENCE]'`;
 }
+
+// - n'interviens pas pour une simple salutation générale, une explication correcte qui ne nécessite pas ta réaction, ou si ton intervention répéterait ce qui a déjà été dit ;
+// - évite que tous les élèves répondent au même message et ne cherche pas à parler à chaque tour.
 
 function isChatMessage(value) {
   return (
@@ -134,7 +138,7 @@ function chatPlugin() {
           if (
             !["briefing", "direct", "classroom", "evaluation"].includes(mode) ||
             (["briefing", "evaluation"].includes(mode) && recipientId !== "vautier") ||
-            (mode === "direct" && !character) ||
+            (["direct", "classroom"].includes(mode) && !character) ||
             !Array.isArray(messages) ||
             messages.length === 0 ||
             messages.length > MAX_MESSAGES ||
@@ -155,6 +159,20 @@ function chatPlugin() {
             return;
           }
 
+          console.log([
+                {
+                  role: "system",
+                  content:
+                    mode === "briefing"
+                      ? briefingPrompt()
+                      : mode === "evaluation"
+                        ? evaluationPrompt(objectives)
+                        : mode === "direct"
+                          ? directPrompt(character)
+                          : classroomPrompt(character, objectives),
+                },
+                ...messages.slice(-MAX_MESSAGES),
+              ]);
           const upstream = await fetch(OPENAI_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
@@ -172,7 +190,7 @@ function chatPlugin() {
                         ? evaluationPrompt(objectives)
                         : mode === "direct"
                           ? directPrompt(character)
-                          : classroomPrompt(objectives),
+                          : classroomPrompt(character, objectives),
                 },
                 ...messages.slice(-MAX_MESSAGES),
               ],
@@ -192,11 +210,22 @@ function chatPlugin() {
           });
           const stream = toTextStream(upstream);
           const reader = stream.getReader();
+
+          const responseDecoder = new TextDecoder();
+          let responseText = "";
+
           for (;;) {
             const { done, value } = await reader.read();
             if (done) break;
+
+            responseText += responseDecoder.decode(value, { stream: true });
+
             response.write(Buffer.from(value));
           }
+
+          responseText += responseDecoder.decode();
+          console.log("Réponse de " + (mode === "classroom" ? character.name : "ChatGPT") + " :\n", responseText);
+
           response.end();
         } catch (error) {
           response.writeHead(500);

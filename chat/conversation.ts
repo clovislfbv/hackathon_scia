@@ -9,6 +9,7 @@ const CHARACTERS = {
 };
 
 const classroom = { name: "La classe", role: "Discussion générale" };
+const classroomCharacters = ["alex", "lucas", "sam", "vautier"] as const;
 
 type ConversationOptions = {
   controls: { unlock: () => void };
@@ -355,6 +356,10 @@ export function createConversation({
 
   async function send(text) {
     const session = current;
+    if (session.mode === "classroom") {
+      await sendToClassroom(text);
+      return;
+    }
     const history = currentHistory();
     const next = [...history, { role: "user", content: text }];
     histories[session.key] = next;
@@ -363,10 +368,7 @@ export function createConversation({
     submitButton.disabled = true;
     input.disabled = true;
     status.textContent = `${session.character.name} réfléchit…`;
-    const responseMessage =
-      session.mode === "classroom"
-        ? appendMessage("agent", "")
-        : appendMessage("agent", "", session.character);
+    const responseMessage = appendMessage("agent", "", session.character);
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -396,22 +398,85 @@ export function createConversation({
         ? extractMetadata(answer, "OBJECTIVES")
         : { content: answer, value: null };
       answer = parsed.content;
-      renderMessageContent(responseMessage, answer, session.mode !== "classroom");
-      if (session.mode === "classroom") {
-        responseMessage.remove();
-        appendAgentMessage(answer, session);
-      }
+      renderMessageContent(responseMessage, answer, true);
       histories[session.key] = [...next, { role: "assistant", content: answer }];
       if (session.mode === "briefing") onBriefingComplete();
       if (session.mode === "briefing" && Array.isArray(parsed.value)) {
         const labels = parsed.value.filter((label) => typeof label === "string" && label.trim()).map((label) => label.trim()).slice(0, 5);
         if (labels.length) onObjectivesReceived(labels);
       }
-      if (session.mode === "classroom") onClassroomResponse(answer);
       status.textContent = "";
     } catch (error) {
       responseMessage.remove();
       histories[session.key] = next;
+      status.textContent = error instanceof Error ? error.message : "Erreur de discussion.";
+    } finally {
+      busy = false;
+      submitButton.disabled = false;
+      input.disabled = false;
+      input.focus();
+    }
+  }
+
+  async function sendToClassroom(text) {
+    const history = histories.classroom;
+    const next = [...history, { role: "user", content: text }];
+    histories.classroom = next;
+    appendMessage("user", text);
+    busy = true;
+    submitButton.disabled = true;
+    input.disabled = true;
+    status.textContent = "Les élèves réfléchissent…";
+
+    try {
+      const answers = await Promise.all(classroomCharacters.map(async (characterId) => {
+        const character = CHARACTERS[characterId];
+        const privateHistory = histories[characterId].map((message) => ({
+          role: message.role,
+          content: `[CONTEXTE DE LA DISCUSSION PRIVÉE AVEC ${character.name.toUpperCase()}] ${message.content}`,
+        }));
+        const classroomHistory = next
+          .filter((message) => message.role === "user" || message.content.startsWith(`[${character.name.toUpperCase()}]:`))
+          .map((message) => message.role === "assistant"
+            ? { role: "assistant", content: message.content.replace(`[${character.name.toUpperCase()}]: `, "") }
+            : message);
+        const ownHistory = [...privateHistory, ...classroomHistory];
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "classroom",
+            recipientId: characterId,
+            messages: ownHistory,
+            objectives: objectives(),
+          }),
+        });
+        if (!response.ok || !response.body) throw new Error((await response.text()) || "La classe n'a pas répondu.");
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let answer = "";
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          answer += decoder.decode(value, { stream: true });
+        }
+        return { characterId, answer: answer.trim() };
+      }));
+
+      for (const { characterId, answer } of answers) {
+        if (!answer || answer === "[SILENCE]") continue;
+        const character = CHARACTERS[characterId];
+        const cleanAnswer = answer.replace(/\[END_COURSE\]/g, "").trim();
+        if (cleanAnswer) {
+          appendMessage("agent", cleanAnswer, character);
+          histories.classroom.push({ role: "assistant", content: `[${character.name.toUpperCase()}]: ${cleanAnswer}` });
+          onClassroomResponse(answer);
+        }
+        if (characterId === "vautier" && answer.includes("[END_COURSE]")) onClassroomResponse("[END_COURSE]");
+      }
+      status.textContent = "";
+    } catch (error) {
+      histories.classroom = next;
       status.textContent = error instanceof Error ? error.message : "Erreur de discussion.";
     } finally {
       busy = false;
