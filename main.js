@@ -11,11 +11,13 @@ import {
   createSeatedStudent
 } from "./objects/index.js";
 import {
+  createCharacterInteraction,
   createCollisionSystem,
   createControls,
   createDoorInteraction,
   createMovement,
 } from "./player/index.js";
+import { createConversation } from "./chat/conversation.js";
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101827);
@@ -38,6 +40,7 @@ document.body.appendChild(renderer.domElement);
 const materials = createMaterials();
 addLighting(scene);
 const upperBodies = [];
+const interactiveCharacters = [];
 const lookTarget = new THREE.Vector3();
 
 const collisionSystem = createCollisionSystem();
@@ -75,16 +78,24 @@ for (const z of [-1.2, 2.1]) {
 }
 
 // Three students seated in the first row, facing the board.
-createSeatedStudent(scene, [-3.08, 0, -0.5], materials, upperBodies, materials.shirtMaterial, false, { name: "Alex", role: "L'intello" });
-createSeatedStudent(scene, [1.92, 0, -0.5], materials, upperBodies, materials.redShirtMaterial, false, { name: "Lucas", role: "Le perturbateur" });
-createSeatedStudent(scene, [3.08, 0, -0.5], materials, upperBodies, materials.greenShirtMaterial, false, { name: "Sam", role: "Le perdu" });
+const alex = createSeatedStudent(scene, [-3.08, 0, -0.5], materials, upperBodies, materials.shirtMaterial, false, { name: "Alex", role: "L'intello" });
+alex.userData.characterId = "alex";
+interactiveCharacters.push(alex);
+const lucas = createSeatedStudent(scene, [1.92, 0, -0.5], materials, upperBodies, materials.redShirtMaterial, false, { name: "Lucas", role: "Le perturbateur" });
+lucas.userData.characterId = "lucas";
+interactiveCharacters.push(lucas);
+const sam = createSeatedStudent(scene, [3.08, 0, -0.5], materials, upperBodies, materials.greenShirtMaterial, false, { name: "Sam", role: "Le perdu" });
+sam.userData.characterId = "sam";
+interactiveCharacters.push(sam);
 
 // The examiner observes the lesson from the last row.
-createSeatedStudent(scene, [3.08, 0, 2.8], materials, upperBodies, materials.examinerJacketMaterial, true, {
+const vautier = createSeatedStudent(scene, [3.08, 0, 2.8], materials, upperBodies, materials.examinerJacketMaterial, true, {
   name: "M. Vautier",
   role: "Examinateur",
   labelHeight: 2.35,
 });
+vautier.userData.characterId = "vautier";
+interactiveCharacters.push(vautier);
 
 // White board on the front wall, with a simple frame and tray.
 createBoard(
@@ -94,9 +105,13 @@ createBoard(
   materials,
   collisionSystem.addCollisionBox,
 );
-const controls = createControls(camera, renderer);
+const controls = createControls(camera, renderer, (event) => !event.defaultPrevented);
 const movement = createMovement(camera, controls, collisionSystem.collidesAt);
 const doorInteraction = createDoorInteraction(camera, controls, doorHinge);
+const conversation = createConversation({ controls });
+createCharacterInteraction(camera, renderer, controls, interactiveCharacters, (characterId) => {
+  conversation.openDirect(characterId);
+});
 
 const labelRenderer = new CSS2DRenderer();
 labelRenderer.setSize(window.innerWidth, window.innerHeight);

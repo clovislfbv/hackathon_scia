@@ -46,18 +46,51 @@
 
       #interaction-hint {
         position: fixed;
-        top: 18px;
-        left: 50%;
+        bottom: 18px;
+        left: 18px;
         z-index: 1;
-        transform: translateX(-50%);
-        padding: 9px 14px;
+        max-width: min(390px, calc(100vw - 36px));
+        padding: 10px 14px;
         border: 1px solid #ffffff33;
-        border-radius: 999px;
+        border-radius: 12px;
         background: #101827dd;
         color: #f7f3e8;
-        font-size: 14px;
+        font-size: 13px;
+        line-height: 1.45;
         pointer-events: none;
       }
+
+      #interaction-hint kbd { padding: 1px 5px; border: 1px solid #ffffff55; border-radius: 4px; background: #ffffff18; font: inherit; font-weight: 700; }
+      #chat-panel.is-open ~ #interaction-hint { display: none; }
+
+      #crosshair {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 1;
+        width: 18px;
+        height: 18px;
+        box-sizing: border-box;
+        border: 2px solid #f7f3e8;
+        border-radius: 50%;
+        box-shadow: 0 0 5px #000;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+      }
+
+      #crosshair::before,
+      #crosshair::after {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 4px;
+        height: 4px;
+        background: #f7f3e8;
+        content: "";
+        transform: translate(-50%, -50%);
+      }
+
+      #chat-panel.is-open ~ #crosshair { display: none; }
 
       #chat-panel {
         position: fixed;
@@ -85,10 +118,16 @@
       #chat-messages { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 4px; }
       .message { max-width: 88%; padding: 10px 12px; border-radius: 12px; line-height: 1.4; white-space: pre-wrap; }
       .message.user { align-self: flex-end; background: #3d6fa3; }
-      .message.agent { align-self: flex-start; background: #ffffff16; }
+      .message.agent { align-self: flex-start; display: flex; gap: 9px; background: #ffffff16; }
+      .message-body { min-width: 0; }
+      .message-portrait { width: 40px; height: 40px; flex: 0 0 40px; border: 1px solid #ffffff55; border-radius: 50%; background: #101827; }
+      .message-identity { font-size: 13px; font-weight: 700; }
+      .message-identity + span { display: block; margin-bottom: 4px; color: #bad7ff; font-size: 11px; }
+      .message-text { white-space: pre-wrap; }
       #chat-form { display: flex; gap: 8px; }
       #chat-input { min-width: 0; flex: 1; resize: none; border: 1px solid #ffffff33; border-radius: 10px; background: #0d1522; color: inherit; padding: 10px; font: inherit; }
       #chat-form button { border: 0; border-radius: 10px; background: #e8dfcf; color: #182238; cursor: pointer; font-weight: 700; padding: 0 14px; }
+      #chat-form button:disabled, #chat-input:disabled { cursor: wait; opacity: 0.65; }
       #chat-status { min-height: 18px; margin: 0; color: #bad7ff; font-size: 12px; }
     </style>
   </head>
@@ -102,6 +141,12 @@
       <form id="chat-form"><textarea id="chat-input" rows="3" placeholder="Explique ta notion…"></textarea><button type="submit">Envoyer</button></form>
       <p id="chat-status"></p>
     </aside>
+    <div id="interaction-hint" aria-live="polite">
+      <strong>Discuter :</strong> <kbd>T</kbd> pour parler à la classe.<br>
+      Vise un PNJ avec le réticule et clique pour lui parler directement.<br>
+      <kbd>Échap</kbd> ferme le chat.
+    </div>
+    <div id="crosshair" aria-hidden="true"></div>
     <script type="module" src="/main.js"></script>
   </body>
 </html>

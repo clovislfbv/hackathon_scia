@@ -3,7 +3,15 @@ import * as THREE from "three";
 export function createMovement(camera, controls, collidesAt) {
   const keys = new Set();
 
+  function isEditableTarget(target) {
+    return (
+      target instanceof Element &&
+      (target.matches("input, textarea, select") || target.isContentEditable)
+    );
+  }
+
   window.addEventListener("keydown", (event) => {
+    if (isEditableTarget(event.target)) return;
     const key = event.key.toLowerCase();
     if (["z", "q", "s", "d"].includes(key)) {
       keys.add(key);
