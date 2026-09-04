@@ -1,15 +1,19 @@
 import * as THREE from "three";
 import { addBox, addCylinder, addSphere, createCharacterLabel } from "./helpers.js";
+import type { createMaterials } from "../scene/materials.js";
+
+type Materials = ReturnType<typeof createMaterials>;
+type StudentIdentity = { name: string; role: string; labelHeight?: number };
 
 export function createSeatedStudent(
-  parent,
-  position,
-  materials,
-  upperBodies,
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  materials: Materials,
+  upperBodies: THREE.Group[],
   studentShirtMaterial = materials.shirtMaterial,
   hasAfro = false,
-  identity,
-) {
+  identity?: StudentIdentity,
+): THREE.Group {
   const student = new THREE.Group();
   student.position.set(...position);
   const upperBody = new THREE.Group();

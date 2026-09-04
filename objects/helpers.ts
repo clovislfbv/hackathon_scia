@@ -1,7 +1,12 @@
 import * as THREE from "three";
 import { CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 
-export function addBox(parent, size, position, material) {
+export function addBox(
+  parent: THREE.Object3D,
+  size: [number, number, number],
+  position: [number, number, number],
+  material: THREE.Material,
+): THREE.Mesh {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), material);
   mesh.position.set(...position);
   mesh.castShadow = true;
@@ -10,7 +15,13 @@ export function addBox(parent, size, position, material) {
   return mesh;
 }
 
-export function addCylinder(radius, height, position, material, parent) {
+export function addCylinder(
+  radius: number,
+  height: number,
+  position: [number, number, number],
+  material: THREE.Material,
+  parent: THREE.Object3D,
+): THREE.Mesh {
   const mesh = new THREE.Mesh(
     new THREE.CylinderGeometry(radius, radius, height, 12),
     material,
@@ -22,7 +33,12 @@ export function addCylinder(radius, height, position, material, parent) {
   return mesh;
 }
 
-export function addSphere(radius, position, material, parent) {
+export function addSphere(
+  radius: number,
+  position: [number, number, number],
+  material: THREE.Material,
+  parent: THREE.Object3D,
+): THREE.Mesh {
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 12, 10), material);
   mesh.position.set(...position);
   mesh.castShadow = true;
@@ -31,7 +47,7 @@ export function addSphere(radius, position, material, parent) {
   return mesh;
 }
 
-export function createCharacterLabel(name, role, height = 2.2) {
+export function createCharacterLabel(name: string, role: string, height = 2.2): CSS2DObject {
   const element = document.createElement("div");
   element.className = "character-label";
   element.innerHTML = `<strong>${name}</strong><span>${role}</span>`;

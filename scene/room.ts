@@ -1,6 +1,12 @@
 import * as THREE from "three";
 
-export function createRoom(scene, size, floorMaterial, wallMaterial, ceilingMaterial) {
+export function createRoom(
+  scene: THREE.Scene,
+  size: [number, number, number],
+  floorMaterial: THREE.Material,
+  wallMaterial: THREE.Material,
+  ceilingMaterial: THREE.Material,
+): void {
   const materials = [
     wallMaterial,
     wallMaterial,

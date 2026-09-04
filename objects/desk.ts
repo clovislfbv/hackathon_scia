@@ -1,7 +1,16 @@
 import * as THREE from "three";
 import { addBox } from "./helpers.js";
+import type { createMaterials } from "../scene/materials.js";
 
-export function createDesk(parent, position, materials, addCollisionBox, width = 2.5) {
+type Materials = ReturnType<typeof createMaterials>;
+
+export function createDesk(
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  materials: Materials,
+  addCollisionBox: (centerX: number, centerZ: number, width: number, depth: number) => void,
+  width = 2.5,
+): THREE.Group {
   const desk = new THREE.Group();
   desk.position.set(...position);
   addCollisionBox(position[0], position[2], width, 1.1);

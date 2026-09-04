@@ -1,5 +1,10 @@
-export function createCollisionSystem(playerRadius = 0.35) {
-  const collisionBoxes = [];
+type CollisionBox = { minX: number; maxX: number; minZ: number; maxZ: number };
+
+export function createCollisionSystem(playerRadius = 0.35): {
+  addCollisionBox: (centerX: number, centerZ: number, width: number, depth: number) => void;
+  collidesAt: (x: number, z: number) => boolean;
+} {
+  const collisionBoxes: CollisionBox[] = [];
 
   function addCollisionBox(centerX, centerZ, width, depth) {
     collisionBoxes.push({

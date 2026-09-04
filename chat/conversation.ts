@@ -8,15 +8,15 @@ const CHARACTERS = {
 const classroom = { name: "La classe", role: "Discussion générale" };
 
 export function createConversation({ controls }) {
-  const panel = document.querySelector("#chat-panel");
-  const title = document.querySelector("#chat-title");
-  const role = document.querySelector("#chat-role");
-  const messagesElement = document.querySelector("#chat-messages");
-  const form = document.querySelector("#chat-form");
-  const input = document.querySelector("#chat-input");
-  const closeButton = document.querySelector("#close-chat");
-  const status = document.querySelector("#chat-status");
-  const submitButton = form.querySelector("button[type=submit]");
+  const panel = document.querySelector<HTMLElement>("#chat-panel");
+  const title = document.querySelector<HTMLElement>("#chat-title");
+  const role = document.querySelector<HTMLElement>("#chat-role");
+  const messagesElement = document.querySelector<HTMLElement>("#chat-messages");
+  const form = document.querySelector<HTMLFormElement>("#chat-form");
+  const input = document.querySelector<HTMLInputElement>("#chat-input");
+  const closeButton = document.querySelector<HTMLButtonElement>("#close-chat");
+  const status = document.querySelector<HTMLElement>("#chat-status");
+  const submitButton = form.querySelector<HTMLButtonElement>("button[type=submit]");
   const histories = { alex: [], lucas: [], sam: [], vautier: [], classroom: [] };
   let current = null;
   let busy = false;

@@ -1,11 +1,15 @@
 import * as THREE from "three";
 
-export function createMovement(camera, controls, collidesAt) {
-  const keys = new Set();
+export function createMovement(
+  camera: THREE.Camera,
+  controls: { isLocked: boolean },
+  collidesAt: (x: number, z: number) => boolean,
+): { update: (delta: number) => void } {
+  const keys = new Set<string>();
 
-  function isEditableTarget(target) {
+  function isEditableTarget(target: EventTarget | null): boolean {
     return (
-      target instanceof Element &&
+      target instanceof HTMLElement &&
       (target.matches("input, textarea, select") || target.isContentEditable)
     );
   }
@@ -22,7 +26,7 @@ export function createMovement(camera, controls, collidesAt) {
     keys.delete(event.key.toLowerCase()),
   );
 
-  function update(delta) {
+  function update(delta: number): void {
     if (!controls.isLocked) return;
 
     const direction = new THREE.Vector3();

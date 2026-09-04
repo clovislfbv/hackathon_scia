@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export function addLighting(scene) {
+export function addLighting(scene: THREE.Scene): void {
   const ambientLight = new THREE.HemisphereLight(0xbad7ff, 0x182238, 2);
   scene.add(ambientLight);
 

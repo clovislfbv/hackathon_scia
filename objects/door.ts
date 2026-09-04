@@ -1,7 +1,14 @@
 import * as THREE from "three";
 import { addBox } from "./helpers.js";
+import type { createMaterials } from "../scene/materials.js";
 
-export function createDoor(parent, position, materials) {
+type Materials = ReturnType<typeof createMaterials>;
+
+export function createDoor(
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  materials: Materials,
+): THREE.Group {
   const door = new THREE.Group();
   door.position.set(...position);
 

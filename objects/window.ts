@@ -1,7 +1,14 @@
 import * as THREE from "three";
 import { addBox } from "./helpers.js";
+import type { createMaterials } from "../scene/materials.js";
 
-export function createWindow(parent, position, materials) {
+type Materials = ReturnType<typeof createMaterials>;
+
+export function createWindow(
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  materials: Materials,
+): THREE.Group {
   const windowGroup = new THREE.Group();
   windowGroup.position.set(...position);
 

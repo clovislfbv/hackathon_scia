@@ -1,7 +1,15 @@
 import * as THREE from "three";
 import { addBox } from "./helpers.js";
+import type { createMaterials } from "../scene/materials.js";
 
-export function createChair(parent, position, materials, addCollisionBox) {
+type Materials = ReturnType<typeof createMaterials>;
+
+export function createChair(
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  materials: Materials,
+  addCollisionBox: (centerX: number, centerZ: number, width: number, depth: number) => void,
+): THREE.Group {
   const chair = new THREE.Group();
   chair.position.set(...position);
   addCollisionBox(position[0], position[2], 0.85, 0.85);

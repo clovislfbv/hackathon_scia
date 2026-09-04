@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export function createMaterials() {
+export function createMaterials(): Record<string, THREE.MeshStandardMaterial> {
   return {
     wall: new THREE.MeshStandardMaterial({
       color: 0xe8dfcf,
