@@ -86,6 +86,17 @@ L'expérience d'apprentissage est scénarisée sous la forme d'un **jeu de rôle
 
 ## 🛠️ Stack Technique & Roadmap
 
+## 🎮 Flux MVP implémenté
+
+Le gameplay actuel suit quatre phases :
+
+1. **Briefing** : seul M. Vautier est visible. Il demande le sujet du cours dans le chat.
+2. **Préparation** : le sujet envoyé par le joueur permet à l'IA de proposer 3 à 5 concepts à aborder. Le joueur peut ensuite poser ses questions à Vautier.
+3. **Cours** : le bouton **Prêt à donner le cours** fait apparaître les élèves et ouvre la discussion avec toute la classe. Les échanges sont conservés pour l'évaluation.
+4. **Évaluation** : le joueur clique sur **Terminer le cours**, ou Vautier peut ajouter le marqueur `[END_COURSE]`. L'IA analyse le briefing et la transcription du cours, puis donne une note sur 20, les points forts, les notions oubliées ou incorrectes et des conseils.
+
+Les transitions sont gérées côté client par `player/gameplay.ts`. Le backend Vite distingue les modes `briefing`, `classroom`, `direct` et `evaluation`.
+
 - **Backend** : Python / FastAPI + Framework Multi-Agents (LangChain / LangGraph / CrewAI).
 - **RAG** : Vectorstore (ChromaDB / FAISS) + PDF Loader.
 - **LLM** : Claude 3.5 Sonnet / GPT-4o.

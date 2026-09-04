@@ -7,7 +7,17 @@ const CHARACTERS = {
 
 const classroom = { name: "La classe", role: "Discussion générale" };
 
-export function createConversation({ controls }) {
+type ConversationOptions = {
+  controls: { unlock: () => void };
+  onBriefingComplete?: () => void;
+  onClassroomResponse?: (answer: string) => void;
+};
+
+export function createConversation({
+  controls,
+  onBriefingComplete = () => {},
+  onClassroomResponse = (_answer: string) => {},
+}: ConversationOptions) {
   const panel = document.querySelector<HTMLElement>("#chat-panel");
   const title = document.querySelector<HTMLElement>("#chat-title");
   const role = document.querySelector<HTMLElement>("#chat-role");
@@ -17,7 +27,7 @@ export function createConversation({ controls }) {
   const closeButton = document.querySelector<HTMLButtonElement>("#close-chat");
   const status = document.querySelector<HTMLElement>("#chat-status");
   const submitButton = form.querySelector<HTMLButtonElement>("button[type=submit]");
-  const histories = { alex: [], lucas: [], sam: [], vautier: [], classroom: [] };
+  const histories = { alex: [], lucas: [], sam: [], vautier: [], classroom: [], evaluation: [] };
   let current = null;
   let busy = false;
 
@@ -73,7 +83,7 @@ export function createConversation({ controls }) {
     }
   }
 
-  function open(mode, recipientId = null) {
+  function open(mode, recipientId = null, initialMessage = "") {
     if (mode === "direct" && !CHARACTERS[recipientId]) return;
     if (busy) return;
     current = {
@@ -82,6 +92,9 @@ export function createConversation({ controls }) {
       key: mode === "direct" ? recipientId : "classroom",
       character: mode === "direct" ? CHARACTERS[recipientId] : classroom,
     };
+    if (initialMessage && histories[current.key].length === 0) {
+      histories[current.key].push({ role: "assistant", content: initialMessage });
+    }
     title.textContent = mode === "direct" ? `À ${current.character.name}` : "À la classe";
     role.textContent = current.character.role;
     status.textContent = "";
@@ -90,6 +103,55 @@ export function createConversation({ controls }) {
     panel.setAttribute("aria-hidden", "false");
     controls.unlock();
     input.focus();
+  }
+
+  async function requestEvaluation() {
+    const transcript = [...histories.vautier, ...histories.classroom];
+    if (!transcript.length || busy) return;
+    current = {
+      mode: "evaluation",
+      recipientId: "vautier",
+      key: "evaluation",
+      character: CHARACTERS.vautier,
+    };
+    title.textContent = "Bilan de M. Vautier";
+    role.textContent = "Évaluation du cours";
+    status.textContent = "L'examinateur analyse le cours…";
+    renderHistory();
+    panel.classList.add("is-open");
+    panel.setAttribute("aria-hidden", "false");
+    controls.unlock();
+    busy = true;
+    const responseMessage = appendMessage("agent", "", current.character);
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "evaluation",
+          recipientId: "vautier",
+          messages: transcript,
+        }),
+      });
+      if (!response.ok || !response.body) throw new Error((await response.text()) || "Évaluation impossible.");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let answer = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        answer += decoder.decode(value, { stream: true });
+        responseMessage.querySelector(".message-text").textContent = answer;
+        messagesElement.scrollTop = messagesElement.scrollHeight;
+      }
+      histories.evaluation = [{ role: "assistant", content: answer }];
+      status.textContent = "";
+    } catch (error) {
+      responseMessage.remove();
+      status.textContent = error instanceof Error ? error.message : "Erreur d'évaluation.";
+    } finally {
+      busy = false;
+    }
   }
 
   function close() {
@@ -146,6 +208,8 @@ export function createConversation({ controls }) {
         appendAgentMessage(answer, session);
       }
       histories[session.key] = [...next, { role: "assistant", content: answer }];
+      if (session.mode === "briefing") onBriefingComplete();
+      if (session.mode === "classroom") onClassroomResponse(answer);
       status.textContent = "";
     } catch (error) {
       responseMessage.remove();
@@ -183,5 +247,12 @@ export function createConversation({ controls }) {
     }
   });
 
-  return { openDirect: (recipientId) => open("direct", recipientId), openClassroom: () => open("classroom"), isOpen: () => current !== null };
+  return {
+    openDirect: (recipientId) => open("direct", recipientId),
+    openBriefing: () => open("briefing", "vautier", "Quel est le sujet du cours d'aujourd'hui ?"),
+    openClassroom: () => open("classroom"),
+    requestEvaluation,
+    close,
+    isOpen: () => current !== null,
+  };
 }

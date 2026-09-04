@@ -16,6 +16,7 @@ import {
   createCollisionSystem,
   createControls,
   createDoorInteraction,
+  createGameplay,
   createMovement,
 } from "./player/index.js";
 import { createConversation } from "./chat/conversation.js";
@@ -41,8 +42,9 @@ document.body.appendChild(renderer.domElement);
 
 const materials = createMaterials();
 addLighting(scene);
-const upperBodies = [];
-const interactiveCharacters = [];
+const upperBodies: THREE.Group[] = [];
+const interactiveCharacters: THREE.Group[] = [];
+const students: THREE.Group[] = [];
 const lookTarget = new THREE.Vector3();
 
 const collisionSystem = createCollisionSystem();
@@ -95,14 +97,17 @@ for (const z of [-1.2, 2.1]) {
 const alex = createSeatedStudent(scene, [-3.08, 0, -0.5], materials, upperBodies, materials.shirtMaterial, false, { name: "Alex", role: "L'intello" });
 alex.userData.characterId = "alex";
 interactiveCharacters.push(alex);
+students.push(alex);
 
 const lucas = createSeatedStudent(scene, [1.92, 0, -0.5], materials, upperBodies, materials.redShirtMaterial, false, { name: "Lucas", role: "Le perturbateur" });
 lucas.userData.characterId = "lucas";
 interactiveCharacters.push(lucas);
+students.push(lucas);
 
 const sam = createSeatedStudent(scene, [3.08, 0, -0.5], materials, upperBodies, materials.greenShirtMaterial, false, { name: "Sam", role: "Le perdu" });
 sam.userData.characterId = "sam";
 interactiveCharacters.push(sam);
+students.push(sam);
 
 // The examiner observes the lesson from the last row.
 const vautier = createSeatedStudent(scene, [3.08, 0, 2.8], materials, upperBodies, materials.examinerJacketMaterial, true, {
@@ -116,7 +121,17 @@ interactiveCharacters.push(vautier);
 const controls = createControls(camera, renderer, (event) => !event.defaultPrevented);
 const movement = createMovement(camera, controls, collisionSystem.collidesAt);
 const doorInteraction = createDoorInteraction(camera, controls, doorHinge);
-const conversation = createConversation({ controls });
+let onBriefingComplete = () => {};
+let onClassroomResponse = (_answer: string) => {};
+const conversation = createConversation({
+  controls,
+  onBriefingComplete: () => onBriefingComplete(),
+  onClassroomResponse: (answer: string) => onClassroomResponse(answer),
+});
+const gameplay = createGameplay({ conversation, students });
+onBriefingComplete = gameplay.briefingComplete;
+onClassroomResponse = gameplay.classroomResponse;
+gameplay.start();
 createCharacterInteraction(camera, renderer, controls, interactiveCharacters, (characterId) => {
   conversation.openDirect(characterId);
 });

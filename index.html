@@ -63,6 +63,26 @@
       #interaction-hint kbd { padding: 1px 5px; border: 1px solid #ffffff55; border-radius: 4px; background: #ffffff18; font: inherit; font-weight: 700; }
       #chat-panel.is-open ~ #interaction-hint { display: none; }
 
+      #phase-panel {
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: calc(100vw - 36px);
+        padding: 10px 12px;
+        border: 1px solid #ffffff33;
+        border-radius: 10px;
+        background: #101827dd;
+        color: #f7f3e8;
+        font-size: 13px;
+      }
+
+      #phase-panel button { border: 0; border-radius: 7px; background: #e8dfcf; color: #182238; cursor: pointer; padding: 7px 10px; font: inherit; font-weight: 700; }
+      #phase-panel button:disabled { cursor: not-allowed; opacity: 0.45; }
+
       #crosshair {
         position: fixed;
         top: 50%;
@@ -146,7 +166,12 @@
       Vise un PNJ avec le réticule et clique pour lui parler directement.<br>
       <kbd>Échap</kbd> ferme le chat.
     </div>
+    <div id="phase-panel" aria-live="polite">
+      <strong id="phase-status">Briefing avec l'examinateur</strong>
+      <button id="ready-button" type="button" disabled>Prêt à donner le cours</button>
+      <button id="end-class-button" type="button" hidden>Terminer le cours</button>
+    </div>
     <div id="crosshair" aria-hidden="true"></div>
-    <script type="module" src="/main.js"></script>
+    <script type="module" src="/main.ts"></script>
   </body>
 </html>
