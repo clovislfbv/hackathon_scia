@@ -6,6 +6,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "katex": "^0.18.5",
     "three": "^0.185.1"
   },
   "devDependencies": {

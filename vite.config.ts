@@ -39,17 +39,21 @@ Réponds uniquement en français, dans un style oral, en 1 à 3 phrases. Répond
 
 function briefingPrompt() {
   return `Tu es M. Vautier, examinateur pédagogique. La séance commence : l'utilisateur est un professeur remplaçant.
-À son premier message, il donne le sujet du cours. Réponds en français en confirmant le sujet puis en donnant une liste claire de 3 à 5 concepts indispensables à aborder.
+À son premier message, il donne le sujet du cours. Réponds en français en confirmant le sujet puis en donnant une liste claire de 3 à 5 concepts indispensables à aborder. Termine impérativement cette première réponse par une ligne au format exact [[OBJECTIVES:["notion 1","notion 2"]]], avec les mêmes 3 à 5 notions courtes que ta liste. N'utilise ce marqueur qu'une seule fois.
 Pour les messages suivants, réponds à ses questions pour le préparer. Sois précis, pédagogique et concis. Ne donne pas de note pendant cette phase.`;
 }
 
-function evaluationPrompt() {
+function evaluationPrompt(objectives: string[]) {
   return `Tu es M. Vautier, examinateur pédagogique. Évalue le cours donné par l'utilisateur à partir de la transcription fournie.
-Vérifie si les concepts annoncés ont été abordés, l'exactitude factuelle, la précision, la clarté, les exemples, les réponses aux élèves et la correction des erreurs.
-Réponds uniquement en français avec : une note sur 20, les points forts, les notions oubliées ou incorrectes, et trois conseils concrets. Sois juste et factuel.`;
+Les objectifs officiels à évaluer, dans cet ordre, sont : ${objectives.map((objective, index) => `${index + 1}. ${objective}`).join("; ")}.
+Vérifie chaque objectif, l'exactitude factuelle, la précision, la clarté, les exemples, les réponses aux élèves et la correction des erreurs.
+Réponds uniquement en français avec : une note sur 20, les points forts, les notions oubliées ou incorrectes, et trois conseils concrets. Sois juste et factuel. Termine impérativement par une ligne au format exact [[OBJECTIVE_RESULTS:[true,false]]], contenant un booléen pour chaque objectif, dans le même ordre. true signifie validé, false signifie non validé.`;
 }
 
-const CLASSROOM_PROMPT = `Tu orchestres une classe simulée. L'utilisateur est le professeur et s'adresse à la classe entière.
+function classroomPrompt(objectives: string[]) {
+  return `Tu orchestres une classe simulée. L'utilisateur est le professeur et s'adresse à la classe entière.
+
+Les objectifs du cours sont : ${objectives.length ? objectives.map((objective, index) => `${index + 1}. ${objective}`).join("; ") : "non encore définis"}.
 
 Tu joues les personnages suivants :
 - [ALEX], l'intello : précis, il corrige les imprécisions et pose des questions techniques.
@@ -58,6 +62,7 @@ Tu joues les personnages suivants :
 - [VAUTIER], l'examinateur : il n'intervient que pour une erreur importante non corrigée ou si le cours dérape.
 
 Choisis un ou deux personnages au maximum selon le message du professeur. Réponds en français. Chaque prise de parole doit être sur sa propre ligne et commencer strictement par [ALEX]:, [LUCAS]:, [SAM]: ou [VAUTIER]:. N'ajoute ni titre ni autre texte. Lorsque le cours couvre suffisamment les notions ou si le professeur demande de terminer, M. Vautier peut ajouter seul le marqueur [END_COURSE] à la fin de sa prise de parole.`;
+}
 
 function isChatMessage(value) {
   return (
@@ -122,7 +127,7 @@ function chatPlugin() {
           const chunks = [];
           for await (const chunk of request) chunks.push(chunk);
           const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-          const { mode, recipientId, messages } = body;
+          const { mode, recipientId, messages, objectives = [] } = body;
           const character = CHARACTERS[recipientId];
           if (
             !["briefing", "direct", "classroom", "evaluation"].includes(mode) ||
@@ -131,7 +136,10 @@ function chatPlugin() {
             !Array.isArray(messages) ||
             messages.length === 0 ||
             messages.length > MAX_MESSAGES ||
-            !messages.every(isChatMessage)
+            !messages.every(isChatMessage) ||
+            !Array.isArray(objectives) ||
+            objectives.length > 5 ||
+            !objectives.every((objective) => typeof objective === "string" && objective.length > 0 && objective.length <= 200)
           ) {
             response.writeHead(400);
             response.end("Requête de discussion invalide.");
@@ -159,10 +167,10 @@ function chatPlugin() {
                     mode === "briefing"
                       ? briefingPrompt()
                       : mode === "evaluation"
-                        ? evaluationPrompt()
+                        ? evaluationPrompt(objectives)
                         : mode === "direct"
                           ? directPrompt(character)
-                          : CLASSROOM_PROMPT,
+                          : classroomPrompt(objectives),
                 },
                 ...messages.slice(-MAX_MESSAGES),
               ],

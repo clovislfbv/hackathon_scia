@@ -18,6 +18,7 @@ import {
   createDoorInteraction,
   createGameplay,
   createMovement,
+  createObjectivesPanel,
 } from "./player/index.js";
 import { createConversation } from "./chat/conversation.js";
 
@@ -123,14 +124,22 @@ const movement = createMovement(camera, controls, collisionSystem.collidesAt);
 const doorInteraction = createDoorInteraction(camera, controls, doorHinge);
 let onBriefingComplete = () => {};
 let onClassroomResponse = (_answer: string) => {};
+let onObjectivesReceived = (_labels: string[]) => {};
+let onEvaluationComplete = (_results: boolean[]) => {};
+const objectives = createObjectivesPanel();
 const conversation = createConversation({
   controls,
   onBriefingComplete: () => onBriefingComplete(),
   onClassroomResponse: (answer: string) => onClassroomResponse(answer),
+  onObjectivesReceived: (labels: string[]) => onObjectivesReceived(labels),
+  onEvaluationComplete: (results: boolean[]) => onEvaluationComplete(results),
+  objectives: objectives.labels,
 });
-const gameplay = createGameplay({ conversation, students });
+const gameplay = createGameplay({ conversation, students, objectives });
 onBriefingComplete = gameplay.briefingComplete;
 onClassroomResponse = gameplay.classroomResponse;
+onObjectivesReceived = gameplay.objectivesReceived;
+onEvaluationComplete = gameplay.evaluationComplete;
 gameplay.start();
 createCharacterInteraction(camera, renderer, controls, interactiveCharacters, (characterId) => {
   conversation.openDirect(characterId);

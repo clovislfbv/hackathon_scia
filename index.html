@@ -83,6 +83,39 @@
       #phase-panel button { border: 0; border-radius: 7px; background: #e8dfcf; color: #182238; cursor: pointer; padding: 7px 10px; font: inherit; font-weight: 700; }
       #phase-panel button:disabled { cursor: not-allowed; opacity: 0.45; }
 
+      #objectives-panel {
+        position: fixed;
+        top: 82px;
+        left: 18px;
+        z-index: 1;
+        width: min(310px, calc(100vw - 36px));
+        padding: 14px;
+        border: 1px solid #ffffff33;
+        border-radius: 12px;
+        background: #101827ed;
+        color: #f7f3e8;
+        box-shadow: 0 8px 24px #0005;
+      }
+      #objectives-panel h2 { margin: 0 0 8px; font-size: 15px; }
+      #objectives-empty { margin: 0; color: #bad7ff; font-size: 12px; }
+      #objectives-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+      .objective { display: grid; grid-template-columns: 18px 1fr; gap: 9px; align-items: start; font-size: 13px; line-height: 1.35; }
+      .objective-checkbox { width: 17px; height: 17px; margin: 1px 0 0; accent-color: #2da968; cursor: default; }
+      .objective-checkbox:disabled { opacity: 1; }
+      .objective.is-validated { color: #d7ffe7; }
+      .objective.is-not-validated { color: #ffcacc; }
+
+      #phase-transition {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        background: #000;
+        opacity: 0;
+        pointer-events: all;
+        transition: opacity 450ms ease-in-out;
+      }
+      #phase-transition.is-visible { opacity: 1; }
+
       #crosshair {
         position: fixed;
         top: 50%;
@@ -144,9 +177,22 @@
       .message-identity { font-size: 13px; font-weight: 700; }
       .message-identity + span { display: block; margin-bottom: 4px; color: #bad7ff; font-size: 11px; }
       .message-text { white-space: pre-wrap; }
+      .message-text p { margin: 0 0 8px; }
+      .message-text p:last-child { margin-bottom: 0; }
+      .message-text h1, .message-text h2, .message-text h3 { margin: 10px 0 6px; font-size: 1em; }
+      .message-text ul, .message-text ol { margin: 4px 0 8px; padding-left: 20px; }
+      .message-text blockquote { margin: 6px 0; padding-left: 9px; border-left: 3px solid #bad7ff; color: #d4e6ff; }
+      .message-text blockquote p { margin: 0; }
+      .message-text code { padding: 1px 4px; border-radius: 4px; background: #0005; font-family: ui-monospace, monospace; font-size: 0.9em; }
+      .message-text pre { overflow-x: auto; padding: 8px; border-radius: 6px; background: #0005; white-space: pre-wrap; }
+      .message-text a { color: #bad7ff; }
+      .message-text .math-inline { display: inline-block; }
+      .message-text .math-display { overflow-x: auto; margin: 9px 0; padding: 7px; border-radius: 6px; background: #0003; text-align: center; }
+      .message-text .katex-display { margin: 0; }
       #chat-form { display: flex; gap: 8px; }
       #chat-input { min-width: 0; flex: 1; resize: none; border: 1px solid #ffffff33; border-radius: 10px; background: #0d1522; color: inherit; padding: 10px; font: inherit; }
       #chat-form button { border: 0; border-radius: 10px; background: #e8dfcf; color: #182238; cursor: pointer; font-weight: 700; padding: 0 14px; }
+      #restart-game-button { border: 0; border-radius: 10px; background: #e8dfcf; color: #182238; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 14px; }
       #chat-form button:disabled, #chat-input:disabled { cursor: wait; opacity: 0.65; }
       #chat-status { min-height: 18px; margin: 0; color: #bad7ff; font-size: 12px; }
     </style>
@@ -159,6 +205,7 @@
       </header>
       <div id="chat-messages" aria-live="polite"></div>
       <form id="chat-form"><textarea id="chat-input" rows="3" placeholder="Explique ta notion…"></textarea><button type="submit">Envoyer</button></form>
+      <button id="restart-game-button" type="button" hidden>Relancer une partie</button>
       <p id="chat-status"></p>
     </aside>
     <div id="interaction-hint" aria-live="polite">
@@ -171,6 +218,12 @@
       <button id="ready-button" type="button" disabled>Prêt à donner le cours</button>
       <button id="end-class-button" type="button" hidden>Terminer le cours</button>
     </div>
+    <aside id="objectives-panel" aria-live="polite" aria-label="Objectifs du cours" hidden>
+      <h2>Objectifs à aborder</h2>
+      <p id="objectives-empty">En attente des objectifs de l'examinateur…</p>
+      <ul id="objectives-list"></ul>
+    </aside>
+    <div id="phase-transition" aria-hidden="true" hidden></div>
     <div id="crosshair" aria-hidden="true"></div>
     <script type="module" src="/main.ts"></script>
   </body>
