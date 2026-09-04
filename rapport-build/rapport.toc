@@ -1,0 +1,18 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Contexte et intention}{2}{section.1}%
+\contentsline {section}{\numberline {2}Expérience utilisateur et déroulé du jeu}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Étape 1 --- Briefing avec l'examinateur}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Transition vers l'étape 2}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Étape 2 --- Enseignement face à la classe}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Étape 3 --- Évaluation finale}{4}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Le coeur du projet~: une classe multi-agents}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Pourquoi plusieurs agents~?}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Orchestration d'un tour de parole}{6}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Architecture technique}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Pile logicielle}{6}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Organisation du code}{6}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Rendu des réponses et interfaces de communication}{6}{section.5}%
+\contentsline {section}{\numberline {6}Une évaluation fondée sur des preuves}{7}{section.6}%
+\contentsline {section}{\numberline {7}Itérations et difficultés rencontrées}{7}{section.7}%
+\contentsline {section}{\numberline {8}Limites et perspectives}{7}{section.8}%
+\contentsline {section}{\numberline {9}Conclusion}{8}{section.9}%

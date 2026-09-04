@@ -1,27 +1,27 @@
 # TeachToLearn
 
-TeachToLearn est une salle de classe 3D interactive basée sur Three.js et TypeScript. Le joueur incarne un professeur qui prépare puis donne un cours à des élèves contrôlés par une IA.
+TeachToLearn est une salle de classe 3D interactive basée sur Three.js et TypeScript. Le joueur incarne un professeur qui prépare puis donne un cours à une **classe multi-agents** : chaque personnage est une IA autonome avec son propre rôle, son prompt et sa mémoire de conversation.
 
 Le projet utilise une approche inspirée de la méthode de Feynman : comprendre une notion en la préparant, puis la consolider en l'expliquant.
+
+> **Architecture multi-agents** — Lors d'un message adressé à la classe, Alex, Lucas, Sam et M. Vautier reçoivent chacun le contexte du cours et sont interrogés séparément, en parallèle. Chaque agent décide de manière autonome s'il intervient ou s'il reste silencieux.
 
 ## Fonctionnalités
 
 - Salle de classe low-poly en 3D.
 - Déplacement à la première personne avec les touches `ZQSD`.
-- Collisions avec les murs, bureaux, chaises et tableau.
-- Porte animée avec la touche `E` lorsque le joueur est proche.
 - Briefing initial avec M. Vautier.
 - Génération de 3 à 5 objectifs de cours par l'IA.
 - Conversations privées avec les personnages.
 - Conversations de classe avec un contexte individuel pour chaque élève.
-- Élèves capables de rester silencieux avec la réponse `[SILENCE]`.
+- Orchestration de quatre agents IA autonomes dans la classe.
 - Évaluation finale avec une note sur 20.
 - Rendu du Markdown et des formules mathématiques avec KaTeX.
 
 ## Prérequis
 
 - Node.js récent.
-- Une clé API OpenAI si les conversations IA sont utilisées.
+- Une clé API OpenAI
 
 ## Installation
 
@@ -75,7 +75,6 @@ npx tsc --noEmit  # Vérifie les types TypeScript
 
 Interactions supplémentaires :
 
-- `E` : ouvrir ou fermer la porte à proximité.
 - `T` : ouvrir la discussion avec la classe lorsqu'aucun chat n'est ouvert.
 - `Échap` : fermer une conversation lorsque la phase le permet.
 - Cliquez sur un élève visé par le réticule pour ouvrir une conversation privée.
@@ -89,6 +88,27 @@ Seul M. Vautier est présent. Il demande le sujet du cours, puis propose les obj
 ### 2. Cours
 
 Le bouton de préparation fait apparaître les élèves. Chaque élève reçoit son propre prompt et son propre contexte privé, tout en ayant accès aux échanges déjà prononcés par les autres élèves en classe. Un élève peut répondre ou retourner `[SILENCE]` si aucune intervention n'est pertinente.
+
+## Système multi-agents
+
+La classe ne repose pas sur une unique IA qui joue tous les rôles. Elle orchestre quatre appels IA distincts, un par personnage, afin de produire des réactions complémentaires et cohérentes avec le rôle pédagogique de chacun.
+
+| Agent | Rôle pédagogique | Comportement attendu |
+| --- | --- | --- |
+| **Alex** | L'intello | Vérifie la rigueur, signale les imprécisions et pose des questions techniques. |
+| **Lucas** | Le perturbateur | Demande l'utilité concrète des notions et pousse le professeur à vulgariser. |
+| **Sam** | L'élève perdu | Réclame des reformulations simples et des exemples du quotidien. |
+| **M. Vautier** | L'examinateur | Observe le cours, recadre les erreurs importantes et conduit l'évaluation finale. |
+
+### Orchestration d'un tour de classe
+
+1. Le professeur envoie une explication à la classe.
+2. Le client prépare, pour **chaque agent**, un historique combinant sa mémoire privée et la transcription commune de la classe.
+3. Les quatre requêtes `classroom` sont envoyées **en parallèle**.
+4. Chaque agent répond dans son propre rôle ou retourne `[SILENCE]` s'il n'a pas de contribution pédagogique pertinente.
+5. Les interventions retenues sont affichées avec le portrait du personnage et ajoutées à la mémoire collective pour les tours suivants.
+
+Cette séparation empêche un agent de parler à la place d'un autre et permet à la classe de réagir selon plusieurs points de vue pédagogiques plutôt qu'avec une réponse unique.
 
 ### 3. Évaluation
 
