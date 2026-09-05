@@ -26,12 +26,18 @@
 \cfoot{\thepage}
 \lstset{basicstyle=\ttfamily\small,breaklines=true,frame=single,rulecolor=\color{black!25},backgroundcolor=\color{black!03},columns=fullflexible}
 
-\title{\textbf{TeachToLearn}\\[0.35em]\large Une salle de classe 3D multi-agents pour apprendre en enseignant}
+\title{\textbf{TeachToLearn}\\[0.35em]\large Une salle de classe multi-agents pour apprendre en enseignant}
 \author{Clovis Lefebvre \and Evariste Balvay}
 \date{Hackathon SCIA 2026 --- Septembre 2026}
 
 \begin{document}
 \maketitle
+
+\begin{center}
+\textbf{Url du projet~:} \url{http://myhandsomedns.ddns.net:5173/}
+\\[0.3em]
+\textbf{Dépôt GitHub~:} \url{https://github.com/clovislfbv/hackathon_scia}
+\end{center}
 
 \begin{abstract}
 Ce rapport présente \textit{TeachToLearn}, notre réponse au sujet «~IA agentique au service de l'éducation~» du Hackathon SCIA 2026. Le projet transforme une salle de classe 3D en exercice de pédagogie active~: l'utilisateur prépare un cours, l'enseigne à une classe composée de plusieurs agents IA, puis reçoit une évaluation argumentée. L'originalité de la proposition repose moins sur un simple chatbot que sur l'orchestration de personnages autonomes, aux rôles pédagogiques complémentaires, qui disposent de contextes séparés et décident individuellement d'intervenir ou de rester silencieux.
@@ -167,15 +173,21 @@ Le projet reste volontairement léger~: il ne dépend pas d'un framework front-e
 
 \subsection{Organisation du code}
 
-\begin{lstlisting}
-main.ts                 Scene Three.js et raccordement des modules
-scene/                  Salle, materiaux et eclairage
-objects/                Bureau, chaises, tableau, porte, fenetre et personnages
-player/                 Controles, collisions, interactions et phases du jeu
-chat/conversation.ts    Chat, memoires, Markdown, LaTeX et orchestration agents
-vite.config.ts          Endpoint /api/chat, prompts et streaming OpenAI
-player/objectives.ts    Panneau d'objectifs et cases de validation
-\end{lstlisting}
+\begin{center}
+\begin{tabular}{@{}p{0.35\linewidth}@{\hspace{1.5em}}p{0.53\linewidth}@{}}
+\toprule
+\textbf{Fichier ou dossier} & \textbf{Description} \\
+\midrule
+\texttt{main.ts} & Scène Three.js et raccordement des modules \\
+\texttt{scene/} & Salle, matériaux et éclairage \\
+\texttt{objects/} & Bureau, chaises, tableau, porte, fenêtre et personnages \\
+\texttt{player/} & Contrôles, collisions, interactions et phases du jeu \\
+\texttt{chat/conversation.ts} & Chat, mémoires, Markdown, LaTeX et orchestration des agents \\
+\texttt{vite.config.ts} & Endpoint \texttt{/api/chat}, prompts et streaming OpenAI \\
+\texttt{player/objectives.ts} & Panneau d'objectifs et cases de validation \\
+\bottomrule
+\end{tabular}
+\end{center}
 
 La clé OpenAI reste côté serveur, chargée à partir du fichier \texttt{.env}. Le navigateur n'y accède jamais directement. Le middleware valide les modes de conversation, le nombre de messages, leur taille, ainsi que la forme de la liste d'objectifs avant de contacter l'API externe.
 
@@ -230,10 +242,5 @@ Les évolutions naturelles seraient~:
 \textit{TeachToLearn} propose une lecture concrète de l'IA agentique appliquée à l'éducation~: non pas un assistant unique qui donne la réponse, mais une situation d'apprentissage dans laquelle plusieurs agents incarnent les contraintes d'une vraie classe. Alex demande de la précision, Lucas force la contextualisation, Sam vérifie la simplicité et M.~Vautier structure le parcours puis évalue les preuves d'enseignement.
 
 En 48 heures de hackathon, nous avons privilégié une expérience complète~: briefing, objectifs, passage en scène, interactions multi-agents, évaluation fiable, rendu mathématique et dictée vocale. Le projet reste un prototype, mais il démontre qu'une architecture multi-agents peut transformer un chat en outil de mise en pratique pédagogique.
-
-\vfill
-\begin{center}
-\textit{Rapport signé par Clovis Lefebvre \& Evariste Balvay}
-\end{center}
 
 \end{document}

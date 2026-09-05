@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.16)  4 SEP 2026 19:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.16)  5 SEP 2026 14:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -566,10 +566,19 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <8> on input line 35.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 35.
- (rapport-build/rapport.toc
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 4.
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 3
+7.
+
+(/usr/share/texmf/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `lmtt' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 37.
+ (rapport-build/rapport.toc)
 \tf@toc=\write4
 \openout4 = `rapport.toc'.
 
@@ -577,58 +586,49 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/
 dvips/lm/lm-ec.enc}]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 5
-3.
- (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `lmtt' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-<rapport-images/01-briefing-m-vautier.png, id=100, 1263.97218pt x 688.07062pt>
+<rapport-images/01-briefing-m-vautier.png, id=103, 1263.97218pt x 688.07062pt>
 File: rapport-images/01-briefing-m-vautier.png Graphic file (type png)
 <use rapport-images/01-briefing-m-vautier.png>
 Package pdftex.def Info: rapport-images/01-briefing-m-vautier.png  used on inpu
-t line 63.
+t line 69.
 (pdftex.def)             Requested size: 426.67638pt x 232.26106pt.
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/lmr/m/sc/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
  [2]
-<rapport-images/02-objectifs-convenus.png, id=107, 1263.97218pt x 687.31781pt>
+<rapport-images/02-objectifs-convenus.png, id=109, 1263.97218pt x 687.31781pt>
 File: rapport-images/02-objectifs-convenus.png Graphic file (type png)
 <use rapport-images/02-objectifs-convenus.png>
 Package pdftex.def Info: rapport-images/02-objectifs-convenus.png  used on inpu
-t line 78.
+t line 84.
 (pdftex.def)             Requested size: 426.67638pt x 232.00694pt.
  [3
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.87 \subsection
+l.93 \subsection
                 {Étape 2 --- Enseignement face à la classe}
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.87 \subsection
+l.93 \subsection
                 {Étape 2 --- Enseignement face à la classe} <./rapport-images
 /01-briefing-m-vautier.png> <./rapport-images/02-objectifs-convenus.png>]
-<rapport-images/04-enseignement-classe.png, id=119, 1685.29625pt x 915.42pt>
+<rapport-images/04-enseignement-classe.png, id=121, 1685.29625pt x 915.42pt>
 File: rapport-images/04-enseignement-classe.png Graphic file (type png)
 <use rapport-images/04-enseignement-classe.png>
 Package pdftex.def Info: rapport-images/04-enseignement-classe.png  used on inp
-ut line 95.
+ut line 101.
 (pdftex.def)             Requested size: 463.7796pt x 251.91588pt.
-<rapport-images/05-evaluation-finale-m-vautier.png, id=120, 1685.29625pt x 914.
+<rapport-images/05-evaluation-finale-m-vautier.png, id=122, 1685.29625pt x 914.
 41624pt>
 File: rapport-images/05-evaluation-finale-m-vautier.png Graphic file (type png)
 
 <use rapport-images/05-evaluation-finale-m-vautier.png>
 Package pdftex.def Info: rapport-images/05-evaluation-finale-m-vautier.png  use
-d on input line 113.
+d on input line 119.
 (pdftex.def)             Requested size: 463.7796pt x 251.63965pt.
 
 [4
@@ -636,19 +636,19 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.116 
+l.122 
        <./rapport-images/04-enseignement-classe.png (PNG copy)>] [5
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.141 
+l.147 
       
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.141 
+l.147 
        <./rapport-images/05-evaluation-finale-m-vautier.png (PNG copy)>]
 [6] [7] [8] (rapport-build/rapport.aux)
  ***********
@@ -659,22 +659,22 @@ Package rerunfilecheck Info: File `rapport.out' has not changed.
 (rerunfilecheck)             Checksum: E2AF0E9AB67D3121F823A4B57F2AC345;3615.
  ) 
 Here is how much of TeX's memory you used:
- 15858 strings out of 476153
- 249798 string characters out of 5794326
- 2021975 words of memory out of 5000000
+ 15850 strings out of 476153
+ 249687 string characters out of 5794326
+ 1939975 words of memory out of 5000000
  37505 multiletter control sequences out of 15000+600000
  621775 words of font info for 133 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,12n,79p,1004b,1062s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,1004b,1057s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb></
 usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/p
 ublic/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/sha
 re/texmf/fonts/type1/public/lm/lmtt10.pfb>
-Output written on rapport-build/rapport.pdf (8 pages, 1516031 bytes).
+Output written on rapport-build/rapport.pdf (8 pages, 1508525 bytes).
 PDF statistics:
- 203 PDF objects out of 1000 (max. 8388607)
- 171 compressed objects within 2 object streams
- 46 named destinations out of 1000 (max. 500000)
+ 196 PDF objects out of 1000 (max. 8388607)
+ 164 compressed objects within 2 object streams
+ 38 named destinations out of 1000 (max. 500000)
  35997 words of extra memory for PDF output out of 42996 (max. 10000000)
 

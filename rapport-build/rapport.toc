@@ -11,8 +11,8 @@
 \contentsline {section}{\numberline {4}Architecture technique}{6}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Pile logicielle}{6}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Organisation du code}{6}{subsection.4.2}%
-\contentsline {section}{\numberline {5}Rendu des réponses et interfaces de communication}{6}{section.5}%
+\contentsline {section}{\numberline {5}Rendu des réponses et interfaces de communication}{7}{section.5}%
 \contentsline {section}{\numberline {6}Une évaluation fondée sur des preuves}{7}{section.6}%
 \contentsline {section}{\numberline {7}Itérations et difficultés rencontrées}{7}{section.7}%
-\contentsline {section}{\numberline {8}Limites et perspectives}{7}{section.8}%
+\contentsline {section}{\numberline {8}Limites et perspectives}{8}{section.8}%
 \contentsline {section}{\numberline {9}Conclusion}{8}{section.9}%
